@@ -2,6 +2,7 @@
 // where your node app starts
 
 // init project
+require('dotenv').config()
 const express = require('express');
 const voucherifyClient = require('voucherify');
 const app = express();
@@ -29,7 +30,7 @@ app.get("/", (request, response) => {
   }
   response.sendFile(__dirname + '/views/index.html');
 });
-
+console.log(process.env.APPLICATION_ID, process.env.CLIENT_SECRET_KEY)
 const voucherify = voucherifyClient({
     applicationId: process.env.APPLICATION_ID,
     clientSecretKey: process.env.CLIENT_SECRET_KEY

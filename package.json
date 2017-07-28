@@ -10,12 +10,13 @@
 		"start": "node server.js"
 	},
 	"dependencies": {
-		"express": "^4.14.1",
-		"handlebars": "^4.0.6",
-		"voucherify": "^2.2.0",
 		"body-parser": "^1.16.1",
+		"connect-sqlite3": "^0.9.9",
+		"dotenv": "^4.0.0",
+		"express": "^4.14.1",
 		"express-session": "^1.15.1",
-		"connect-sqlite3": "^0.9.9"
+		"handlebars": "^4.0.6",
+		"voucherify": "^2.2.0"
 	},
 	"engines": {
 		"node": "6.9.1"
