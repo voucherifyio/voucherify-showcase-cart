@@ -1,0 +1,31 @@
+{
+	"//1": "describes your app and its dependencies",
+	"//2": "https://docs.npmjs.com/files/package.json",
+	"//3": "updating this file will download and update your packages",
+	"name": "voucherify-showcase",
+	"version": "0.0.1",
+	"description": "Voucherify Showcase",
+	"main": "server.js",
+	"scripts": {
+		"start": "node server.js"
+	},
+	"dependencies": {
+		"express": "^4.14.1",
+		"handlebars": "^4.0.6",
+		"voucherify": "^2.2.0",
+		"body-parser": "^1.16.1",
+		"express-session": "^1.15.1",
+		"connect-sqlite3": "^0.9.9"
+	},
+	"engines": {
+		"node": "6.9.1"
+	},
+	"repository": {
+		"url": "TODO"
+	},
+	"keywords": [
+		"coupons",
+		"vouchers",
+		"Voucherify"
+	]
+}

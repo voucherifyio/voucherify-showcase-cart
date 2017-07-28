@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Voucherify showcase</title>
+    <meta name="description" content="Selected Voucherify's use cases">
+    <link id="favicon" rel="icon" href="https://gomix.com/favicon-app.ico" type="image/x-icon">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/normalize/5.0.0/normalize.min.css" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/milligram/1.2.4/milligram.min.css" />
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css" />
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fetch/2.0.2/fetch.min.js"></script>
+<!--     <script src="//unpkg.com/babel-standalone@6/babel.min.js"></script> -->
+    <style>
+      
+      html {
+        overflow-x: hidden;
+      }
+      
+      body {
+        overflow-x: hidden;
+      } 
+
+      .wrap {
+        max-width: 1200px;
+        margin: 0 auto;
+      }
+
+      .coupon {
+        border: 1px solid #555;
+        border-radius: 5px;
+        text-align: left;
+        padding: 1em;
+        height: 16em;
+      }
+      
+      .coupon p {
+        margin-bottom: 0;
+      }
+      
+      .coupon input {
+        margin-bottom: 0;
+        padding: 0 .25em;
+      }
+
+      .coupon h3 {
+        margin-top: .5em;
+      }
+
+      .panel {
+        border: 1px solid #555;
+        border-radius: 5px;
+        padding: 1em;
+      }
+      
+      /* rebranding */
+      a {
+        color: #70C1B3;
+      }
+
+      select:focus {
+        border-color: #70C1B3;
+        background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="14" viewBox="0 0 29 14" width="29"><path fill="#70C1B3" d="M9.37727 3.625l5.08154 6.93523L19.54036 3.625"/></svg>')
+      }
+      
+      input[type='text']:focus {
+        border-color: #70C1B3;        
+      }
+
+      button[type='button'] {
+        background-color: #70C1B3;
+        border-color: #70C1B3;
+      }
+
+      /* cart table */      
+      .cart-items th {
+        text-align: right;
+      }
+      .cart-items th:nth-child(2) {
+        text-align: left;
+      }
+  
+      .cart-items th:last-child {
+        text-align: center;
+      }
+      
+      .cart-items tbody td {
+        text-align: right;
+      }
+      
+      .cart-items tbody td:nth-child(2) {
+        text-align: left;
+      }
+      
+      .cart-items tbody td:last-child {
+        text-align: center;
+      }
+      
+      .cart-items tfoot td:last-child {
+        text-align: center;
+      }
+      
+      .navigation {
+        list-style: none;
+        width: 100%;
+        height: 100%;
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        z-index: 0;
+        background-color: #f4f5f6;
+        padding: 1em;
+        overflow-y: scroll;
+      }
+    
+      .navigation li {
+        margin: 0.5em 0;
+      }
+      
+      .navigation > li > p {
+        margin: 0;
+      }
+
+      .site-wrap {
+        min-width: 100%;
+        min-height: 1440px;
+        background-color: #fff;
+        position: relative;
+        top: 0;
+        bottom: 100%;
+        left: 0;
+        z-index: 1;
+        padding: 4em 10em;
+      }
+      
+      .nav-trigger {
+        position: absolute;
+        clip: rect(0, 0, 0, 0);
+      }
+      
+      label[for="nav-trigger"] {
+        position: fixed;
+        top: 25em;
+        left: 0;
+        z-index: 2;
+        cursor: pointer;
+        transform: rotate(270deg);
+        transform-origin: left top 0;
+        border: 1px solid #555;
+        border-top: 0;
+        padding: 0 0.25em;
+      }
+      
+
+      .nav-trigger + label, .site-wrap {
+        transition: left 0.2s;
+      }
+      
+      .nav-trigger:checked ~ .site-wrap {
+        left: 17em;
+      }
+
+      .nav-trigger:checked + label {
+        left: 17em;
+      }
+      
+    </style>
+    
+  </head>
+  <body>
+    
+    <ul class="navigation">
+    </ul>
+
+    <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+    <label for="nav-trigger">Redemption history</label>
+
+    <div class="site-wrap">
+      <main class="wrap">
+        <div class="row">
+          <div class="col-xs-12 center-xs">
+            <h4>This site demonstrates several examples of coupon campaigns supported by Voucherify</h4> 
+            <h5>ℹ️️ Add products to the cart and try applying various coupon codes</h5>
+          </div>
+        </div>
+        <div class="row center-xs">
+          <div class="col-md-4 start-xs">
+            <div class="panel">
+              <form>
+                <fieldset>
+                  <label for="productField">Select product</label>
+                  <select id="productField"></select>
+                  <label for="quantityField">Quantity</label>
+                  <select id="quantityField">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                  </select>
+                  <button class="button-primary" type="button" style="float:right;">Add to cart</button>
+                </fieldset>
+              </form>
+            </div>
+          </div>
+          <div class="col-md-8 center-xs">
+            <div class="panel">
+              <div class="row">
+                <table class="cart-items">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Item</th>
+                      <th>Price</th>
+                      <th>Quantity</th>
+                      <th>Total</th>
+                    </tr>
+                  </thead>
+                  <tfoot>
+                  </tfoot>
+                  <tbody>
+                  </tbody>
+                </table>
+              </div>
+              <div class="row end-md center-xs">
+                <div class="col-md-offset-6 col-md-4">
+                  <input type="text" id="couponField" placeholder="Your coupon code"/>
+                </div>
+                <div class="col-md-2 center-xs">
+                  <button class="button-primary" id="redeemButton" type="button">Apply</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row center-xs">
+          <div class="col-xs-12">
+            <p></p>
+          </div>
+        </div>
+        
+        <div class="row center-xs">
+          <div class="col-md-3">
+            <div class="coupon" data-campaign="regular-percentage">
+              <h5><input style="" size="12" value="⏳"><small> <a href="#" class="copy">📋</a></small></h5>
+              <p>Value: <strong>10%</strong></p>
+              <p>Expires: <strong>never</strong></p>
+              <p>Redemptions #: <strong class="redeem"></strong></p>
+              <p><strong>simple percentage discount</strong></p>
+
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="coupon" data-campaign="regular-amount">
+              <h5><input style="" size="12" value="⏳"><small> <a href="#" class="copy">📋</a></small></h5>
+              <p>Value: <strong>$10</strong></p>
+              <p>Expires: <strong>never</strong></p>
+              <p>Redemptions #: <strong class="redeem"></strong></p>
+              <p><strong>simple amount discount</strong></p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="coupon" data-campaign="cart-more-50">
+              <h5><input style="" size="12" value="⏳"><small> <a href="#" class="copy">📋</a></small></h5>
+              <p>Value: <strong>5%</strong></p>
+              <p>Expires: <strong>never</strong></p>
+              <p>Redemptions #: <strong class="redeem"></strong></p>
+              <p><strong>valid if cart value &gt; $50</strong></p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="coupon" data-campaign="cart-includes-2solaris">
+              <h5><input style="" size="12" value="⏳"><small> <a href="#" class="copy">📋</a></small></h5>
+              <p>Value: <strong>$5</strong></p>
+              <p>Expires: <strong>never</strong></p>
+              <p>Redemptions #: <strong class="redeem"></strong></p>
+              <p><strong>buy exactly 2 Solaris books, get $5 discount</strong></p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row center-xs">
+          <div class="col-xs-12">
+            <p></p>
+          </div>
+        </div>
+        
+        <div class="row center-xs">
+          <div class="col-md-3">
+            <div class="coupon" data-campaign="redemption-limit">
+              <h5><input style="" size="12" value="⏳"><small> <a href="#" class="copy">📋</a></small></h5>
+              <p>Value: <strong>50%</strong></p>
+              <p>Expires: <strong>never</strong></p>
+              <p>Redemptions #: <strong class="redeem"></strong></p>
+              <p><strong>can be redeemed only 3 times</strong></p>
+
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="coupon" data-campaign="expiry-date">
+              <h5><input style="" size="12" value="⏳"><small> <a href="#" class="copy">📋</a></small></h5>
+              <p>Value: <strong>$25</strong></p>
+              <p>Expires: <strong>01.02.2017</strong></p>
+              <p>Redemptions #: <strong class="redeem"></strong></p>
+              <p><strong>can't be reedemed after expiration date</strong></p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="coupon" data-campaign="start-date">
+              <h5><input style="" size="12" value="⏳"><small> <a href="#" class="copy">📋</a></small></h5>
+              <p>Value: <strong>$25</strong></p>
+              <p>Starts: <strong>01.10.2018</strong></p>
+              <p>Redemptions #: <strong class="redeem"></strong></p>
+              <p><strong>invalid before a given date</strong></p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="coupon" data-campaign="gift-card">
+              <h5><input style="" size="12" value="⏳"><small> <a href="#" class="copy">📋</a></small></h5>
+              <p>Balance: <strong class="balance">$100</strong></p>
+              <p>Expires: <strong>never</strong></p>
+              <p>Redemptions #: <strong class="redeem"></strong></p>
+              <p><strong>valid if there's a positive balance (gift card)</strong></p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row center-xs">
+          <div class="col-xs-12">
+            <p></p>
+          </div>
+        </div>
+        
+        <div class="row center-xs">
+          <div class="col-md-3">
+            <div class="coupon" data-campaign="upsell">
+              <h5><input style="" size="12" value="⏳"><small> <a href="#" class="copy">📋</a></small></h5>
+              <p>Value: <strong>20%</strong></p>
+              <p>Expires: <strong>never</strong></p>
+              <p>Redemptions #: <strong class="redeem"></strong></p>
+              <p><strong>valid if cart includes "Solaris", "Emperor", and "Astigmatic"</strong></p>
+
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="coupon" data-campaign="mix">
+              <h5><input style="" size="12" value="⏳"><small> <a href="#" class="copy">📋</a></small></h5>
+              <p>Value: <strong>10%</strong></p>
+              <p>Expires: <strong>never</strong></p>
+              <p>Redemptions #: <strong class="redeem"></strong></p>
+              <p><strong>cart &gt; $30 and doesn't include Symphony</strong></p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="coupon" data-campaign="enable">
+              <h5><input id="activate" style="" size="12" value="⏳"><small> <a href="#" class="copy">📋</a></small></h5>
+              <p>Value: <strong>$5</strong></p>
+              <p>Expires: <strong>never</strong></p>
+              <p>Redemptions #: <strong class="redeem"></strong></p>
+              <p><strong>valid if enabled, click below to invalidate</strong></p>
+              <p>
+                <button class="button-primary" id="activateButton" type="button">🔒Disable</button>
+              </p>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="coupon" data-campaign="country">
+              <h5><input style="" size="12" value="⏳"><small> <a href="#" class="copy">📋</a></small></h5>
+              <p>Balance: <strong class="balance">%30</strong></p>
+              <p>Expires: <strong>never</strong></p>
+              <p>Redemptions #: <strong class="redeem"></strong></p>
+              <p><strong>valid if user comes from Germany</strong></p>
+              <p>
+                <select id="countryField">
+                  <option value="USA">USA</option>
+                  <option value="UK">UK</option>
+                  <option value="Germany">Germany</option>
+                  <option value="France">France</option>
+                  <option value="Sweden">Sweden</option>
+                </select>
+              </p>
+            </div>
+          </div>
+        </div>
+        
+        <div class="row">
+          <div class="col-xs-4 start-xs">
+            <p style="margin-top: 0.5em;">To learn more visit our <a href="https://docs.voucherify.io" target="_blank">Developer Hub</a></p>
+          </div>
+          <div class="col-xs-4 center-xs">
+            <p style="margin-top: 0.5em;">See the <a href="https://gomix.com/#!/project/hysterical-shade" target="_blank">source code</a> of this application </p>
+          </div>
+          <div class="col-xs-4 end-xs">
+            <p style="margin-top: 0.5em;"><a href="#" id="generate">Generate new codes...</a></p>
+          </div>
+        </div>
+        
+      </main>
+    </div>
+    
+    <!-- <script type="text/babel"> -->
+    <script>
+
+   
+      // products db
+      const productsCatalog = {
+        solaris: { name: "📖 Solaris - S. Lem", price: 10, prod_id: "prod_w5mRVa3Na4mH9G" },
+        astigmatic: { name: "🎹 Astigmatic - K. Komeda", price: 15, prod_id: "prod_Qgoaa5Z46qQLG6" }, 
+        emperor: { name: "📖 The Emperor - R. Kapuściński", price: 12, prod_id: "prod_RGFbFNXFxoGbJr" },
+        symphony: { name: "🎹 Symphony No. 3 - H. M. Górecki", price: 20, prod_id: "prod_iGEzVplfJVolP3" }
+      }
+       
+      // state
+      
+      // product feed
+      let selectedProduct = Object.keys(productsCatalog)[0];
+      let selectedQuantity = 1;
+     
+      // cart
+      let cart = JSON.parse(localStorage.getItem('cart')) || {};
+      let appliedDiscount = {};
+      
+      // coupons
+      let coupons = JSON.parse(localStorage.getItem('coupons')) || [];
+      // handles enable button
+      let activated = true;
+      // handles country select box
+      let country = JSON.parse(localStorage.getItem('country')) || "USA";
+     
+      // redemption history
+      let redemptions = [];
+
+    
+      function getTotal() {
+        return Object.keys(cart)
+          .reduce((total, id) => total + productsCatalog[id].price * cart[id], 0);
+      }
+      
+      function addItems() {
+        cart = Object.assign({}, cart, {
+           [selectedProduct]: (cart[selectedProduct] || 0) + parseInt(selectedQuantity)
+        });     
+        appliedDiscount = {};
+        render();
+        localStorage.setItem('cart', JSON.stringify(cart));     
+      }
+      
+      function removeItems(e) {
+        e.preventDefault();
+        if (!e.target.matches('a')) return;
+        const removedProduct = e.target.dataset.index;
+        
+        cart = Object.assign({}, cart, {
+           [removedProduct]: 0
+        });
+        
+        render();
+        localStorage.setItem('cart', JSON.stringify(cart));        
+      }
+
+      
+      function calcDiscount(discount) {
+        const total = getTotal();
+        
+        let discountValue = 0;
+        let discountedTotal = 0;
+
+        // gift
+        if (discount.hasOwnProperty('balance')) {
+          
+          //coupons
+          const beforeRedemption = coupons.find(c => c.type === 'GIFT_VOUCHER');
+          const balance = beforeRedemption.gift.balance / 100;
+
+          discountValue = (balance - total) > 0 ? total : balance;
+        }
+        
+        if (discount.type === 'PERCENT') {
+          discountValue = total * discount.percent_off / 100;
+        } 
+        
+        if (discount.type === 'AMOUNT') {
+          discountValue = discount.amount_off / 100;
+        }
+        
+        discountedTotal = (total - discountValue) <= 0 ? 0 : (total - discountValue);
+        return {
+          discountValue, 
+          discountedTotal
+        };
+      }
+      
+      function loadRedemptionHistory() {
+        fetch('/redemptions', { credentials: 'include' })
+          .then(res => res.json())
+          .then(loadedRedemptions => {
+            redemptions = [...loadedRedemptions];
+            renderRedemptions();
+          });
+      }
+
+      function createRedemption(couponCode) {
+        return JSON.stringify({
+          code: couponCode, 
+          amount: getTotal() * 100,
+          customer: {
+            address: {
+              country: country
+            }
+          },
+          items: Object.keys(cart).map(prod => {
+            return { 
+              product_id: cart[prod] > 0 && productsCatalog[prod].prod_id,
+              quantity: cart[prod]
+            }
+          })
+        })
+      }
+      
+      function updateCoupons(updated) {
+        const index = coupons.findIndex(c => c.code === updated.code);
+        coupons = [...coupons.slice(0, index), updated, ...coupons.slice(index+1)];
+        localStorage.setItem('coupons', JSON.stringify(coupons));
+      }
+      
+     
+      function handleRedemption({valid, result}) {
+        appliedDiscount = {
+          valid,
+          discount: valid && getTotal() > 0 && calcDiscount(result.voucher.discount || result.voucher.gift)
+        };
+
+        if (valid) {
+          updateCoupons(result.voucher);
+        }
+
+        render();
+        setTimeout(() => loadRedemptionHistory(), 2000);
+        
+      }
+      
+      function redeemCoupon() {
+        const couponCode = couponField.value;
+
+        if (couponCode==='') return;
+        
+        const options = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: createRedemption(couponCode)
+        };
+        
+        fetch('/redeem', options)
+          .then(response => response.json())
+          .then(handleRedemption)
+          .catch(error => {
+            console.error(error);
+          });
+      }
+      
+      function renderActivate() {
+        if (activated) {
+          activateButton.textContent = "🔒Disable";
+        } else {
+          activateButton.textContent = "Enable";
+        }
+      }
+      
+      function activateCode() {
+        const enableCode = document.querySelector('#activate').value;
+        const options = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentails: 'include',
+          body: JSON.stringify({ code: enableCode })
+        };
+        if (activated) {
+          fetch('/disable', options)
+            .then(() => {
+              activated = false;
+              renderActivate();
+            })
+            .catch(error => console.error(error));
+        } else {
+          fetch('/enable', options)
+            .then(() => {
+              activated = true;
+              renderActivate();
+            })
+            .catch(error => console.error(error));
+        }
+      }
+      
+      function updateCustomerAddress(e) {
+        country = e.target.value;
+        
+        const options = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            address: {
+              country: country
+            }
+          })
+        };
+        
+        fetch('/customer', options)
+          .then(result => {
+            localStorage.setItem('country', JSON.stringify(country));
+          })
+          .catch(error => {
+            console.error(error);
+          });
+      }
+      
+      function generateNewCodes() {
+        localStorage.clear();
+        window.location.reload(true);
+      }
+     
+      function clickToCopy(e) {
+        e.preventDefault();
+        const codeToCopy = e.target.parentElement.previousSibling;
+        codeToCopy.select();
+        try {
+          document.execCommand('copy');
+        } catch (err) {
+          alert('Please press Ctrl/Cmd+C to copy');
+        }
+      }
+     
+      const copyButtons = document.querySelectorAll('.copy');
+      copyButtons.forEach(copy => copy.addEventListener('click', clickToCopy));
+    
+   
+      function publishNewCoupons() {
+        if (coupons.length > 0) {
+          renderCoupons();
+          loadRedemptionHistory();
+        } else {
+          fetch('/init', { credentials: 'include' })
+            .then(res => res.json())
+            .then(publishedCoupons => {
+              coupons = [...publishedCoupons];
+              localStorage.setItem('coupons', JSON.stringify(coupons));
+              render();
+            });
+        } 
+      }
+     
+
+      // init
+      document.addEventListener("DOMContentLoaded", () => {
+        renderProductFeed();
+        publishNewCoupons();
+        render(); 
+      });
+
+      
+      // view
+    
+      const addProductsButton = document.querySelector('button[type=button]');
+      const orderItems = document.querySelector('tbody');
+      const orderSummary = document.querySelector('tfoot');
+      const navigation = document.querySelector(".navigation");
+     
+      // eventListeners
+      productField.addEventListener('change', e => selectedProduct = e.target.value);
+      quantityField.addEventListener('change', e => selectedQuantity = e.target.value);
+     
+      addProductsButton.addEventListener('click', addItems);
+      orderItems.addEventListener('click', removeItems);
+      couponField.addEventListener('keydown', e => {
+        if (e.keyCode === 13) {
+          redeemCoupon();
+        }
+      });
+      
+      redeemButton.addEventListener('click', redeemCoupon);
+     
+      activateButton.addEventListener('click', activateCode);
+      countryField.addEventListener('change', updateCustomerAddress);
+     
+      generate.addEventListener('click', generateNewCodes);
+     
+      // propagate products
+     
+      function renderProductFeed() {
+        for(let index in productsCatalog) {
+          const product = productsCatalog[index];
+          productField.options[productField.options.length] = new Option(`$${product.price} - ${product.name}`, index);
+        }
+      }
+     
+      function renderCoupons() {
+        coupons.forEach(coupon => {
+          const couponPanel = document.querySelector(`[data-campaign=${coupon.campaign}]`);
+          couponPanel.querySelector('input').value = coupon.code;
+          if (coupon.type === "GIFT_VOUCHER") {
+            couponPanel.querySelector('.balance').textContent = coupon.gift.balance / 100;
+          }
+          couponPanel.querySelector('.redeem').textContent = coupon.redemption.redeemed_quantity;
+        });
+      }
+
+
+      function renderRedemptions() {
+        navigation.innerHTML = `<li><strong>Total: ${redemptions.length}</strong></li>`;
+        navigation.innerHTML += redemptions.map(redemption => {
+          const status = redemption.result === "SUCCESS" ? "✅" : "❌";
+          const truncatedCode = redemption.voucher.code.length > 25 ? redemption.voucher.code.substring(0, 25) + "..." : redemption.voucher.code;
+          return `
+            <li><p><small>${status} </small>${truncatedCode}</p><p><small>${redemption.failure_message || ''}</small></p><li>
+          `;
+        }).join('');
+      }
+
+      function render() {
+
+        couponField.style.backgroundColor = "#FFF";
+
+        // cart
+        orderItems.innerHTML = Object.keys(cart).map(productId => {
+          const quantity = cart[productId];
+          if (quantity < 1) return '';
+          const productInfo = productsCatalog[productId];   
+          const sum = parseFloat(productInfo.price) * parseFloat(quantity);
+          return `
+            <tr>
+              <td><a href="#" data-index="${productId}">x</a></td>
+              <td>${productInfo.name}</td>
+              <td>${productInfo.price}</td>
+              <td>${quantity}</td>
+              <td>${sum}</td>
+            </tr>
+          `;
+        }).join('');
+
+        orderSummary.innerHTML = `<tr><td colspan="4" style="text-align: right">Total price</td><td><strong>${getTotal()}</strong></td></tr>`;
+
+        // discount section
+        if (appliedDiscount.valid === false) {
+          couponField.style.backgroundColor = "#FF1654";
+          return;
+        }
+
+        if (appliedDiscount.valid) {
+          couponField.style.backgroundColor = "#B2DBBF";
+        }
+
+        if (appliedDiscount.discount) {
+          orderSummary.innerHTML += `
+            <tr><td colspan="4" style="text-align: right">Discount</td><td><strong>${appliedDiscount.discount.discountValue}</strong></td></tr>
+            <tr><td colspan="4" style="text-align: right"><strong>Discounted total</strong></td><td><strong>${appliedDiscount.discount.discountedTotal}</strong></td></tr>
+          `;
+        }
+
+        // update redemptions counters
+        renderCoupons();
+
+        // country
+        countryField.value = country;
+      }
+     
+    </script>
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-62111925-6', 'auto');
+      ga('send', 'pageview');
+
+    </script>
+  </body>
+</html>
