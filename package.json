@@ -16,7 +16,7 @@
 		"express": "^4.14.1",
 		"express-session": "^1.15.1",
 		"handlebars": "^4.0.6",
-		"voucherify": "^2.2.0"
+		"voucherify": "^2.5.0"
 	},
 	"engines": {
 		"node": "6.9.1"
@@ -28,5 +28,9 @@
 		"coupons",
 		"vouchers",
 		"Voucherify"
-	]
+	],
+	"devDependencies": {
+		"request": "^2.81.0",
+		"request-promise-native": "^1.0.4"
+	}
 }

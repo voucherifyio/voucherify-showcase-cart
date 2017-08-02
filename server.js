@@ -2,13 +2,14 @@
 // where your node app starts
 
 // init project
-require('dotenv').config()
+require('dotenv').config();
 const express = require('express');
 const voucherifyClient = require('voucherify');
 const app = express();
 const bodyParser = require('body-parser');
-const session = require('express-session')
+const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
+const campaigns = require('./campaigns');
 
 app.use(express.static('public'));
 app.use(bodyParser.json());
@@ -48,7 +49,7 @@ app.get("/init", (request, response) => {
   })
   .then(coupons => {
     console.log("[Publish coupons][Success] customer: %s, coupons: %j", customerId, coupons);
-    response.status(200).json(coupons);
+    response.status(200).json(coupons.map(coupon => coupon.voucher));
   })
   .catch(error => console.error("[Publish coupons][Error] customer: %s, error: %j", customerId, error));
 });
@@ -60,20 +61,7 @@ function publishForCustomer(id) {
       source_id: id
     }
   };
-  return [
-    "regular-percentage", 
-    "regular-amount",
-    "cart-more-50",
-    "cart-includes-2solaris",
-    "redemption-limit",
-    "expiry-date",
-    "start-date",
-    "gift-card", 
-    "upsell", 
-    "mix", 
-    "enable", 
-    "country"
-  ].map(campaign => voucherify.publish(Object.assign(params, { campaign })));
+  return campaigns.map(campaign => campaign.name).map(campaign => voucherify.publish(Object.assign(params, { campaign })));
 }
 
 app.get("/redemptions", (request, response) => {
@@ -93,17 +81,40 @@ app.get("/redemptions", (request, response) => {
     });
 });
 
+const productsForThisDemo = require('./products')
+// get voucherify products
+app.get('/products', (request, response) => {
+  voucherify.products.list()
+    .then(response => {
+      const idsForThisDemo = productsForThisDemo.map(p => p.id)
+      return response.products.filter(product => idsForThisDemo.includes(product.source_id)).map(product => ({
+        prod_id: product.id,
+        name: product.name,
+        displayName: product.metadata.displayName,
+        price: product.metadata.price
+      }))
+    })
+    .then(products => {
+      response.status(200).json(products)
+    })
+    .catch(error => {
+      console.error("[Products][Error] error: %j", error);
+      response.sendStatus(404);
+    });
+})
+
 // update customer address
 app.post("/customer", (request, response) => {
   console.log("[Customer update] customer: %s, address: %j", request.session.id, request.body);
   voucherify.customers.update({
     id: request.session.customerId,
-    address: request.body.address
+    address: request.body.address,
+    metadata: {from: 'voucherify-showcase'}
   }).then(result => {
     console.log("[Customer update][Success] customer: %s, body: %j", request.session.id, result);
     response.sendStatus(200);
   }).catch(error => {
-    console.error("[Customer update][Error] customer: %s, error: %j", request.session.id, error);
+    console.error("[Customer update][Error] customer: %s, error: %j", request.session.id, JSON.stringify(error, null, 2));
     response.sendStatus(404);
   });
 });
@@ -114,7 +125,8 @@ app.post("/redeem", (request, response) => {
   voucherify.redemptions.redeem(body.code, {
     customer: {
       source_id: request.session.id,
-      address: body.customer.address
+      address: body.customer.address,
+      metadata: {from: 'voucherify-showcase'}
     },
     order: {
       amount: body.amount,

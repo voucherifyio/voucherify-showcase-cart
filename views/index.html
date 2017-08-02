@@ -408,17 +408,12 @@
 
    
       // products db
-      const productsCatalog = {
-        solaris: { name: "📖 Solaris - S. Lem", price: 10, prod_id: "prod_w5mRVa3Na4mH9G" },
-        astigmatic: { name: "🎹 Astigmatic - K. Komeda", price: 15, prod_id: "prod_Qgoaa5Z46qQLG6" }, 
-        emperor: { name: "📖 The Emperor - R. Kapuściński", price: 12, prod_id: "prod_RGFbFNXFxoGbJr" },
-        symphony: { name: "🎹 Symphony No. 3 - H. M. Górecki", price: 20, prod_id: "prod_iGEzVplfJVolP3" }
-      }
+      let productsCatalog = {}
        
       // state
       
       // product feed
-      let selectedProduct = Object.keys(productsCatalog)[0];
+      let selectedProduct;
       let selectedQuantity = 1;
      
       // cart
@@ -664,9 +659,21 @@
 
       // init
       document.addEventListener("DOMContentLoaded", () => {
-        renderProductFeed();
-        publishNewCoupons();
-        render(); 
+        fetch('/products', {credentials: 'include'})
+          .then(res => res.json())
+          .then(products => {
+            productsCatalog = products.reduce((accumulator, product) => Object.assign(accumulator, {
+              [product.name]: {
+                name: product.displayName,
+                price: product.price,
+                prod_id: product.prod_id
+              }
+            }), {}) 
+            selectedProduct = Object.keys(productsCatalog)[0]
+            renderProductFeed();
+            publishNewCoupons();
+            render(); 
+          })
       });
 
       
