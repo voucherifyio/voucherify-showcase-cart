@@ -4,6 +4,8 @@
 Read more about [Voucherify](https://voucherify.io) 
 [API docs](https://docs.voucherify.io)
 
+This example shows how you can make Voucherify API work with a simple cart checkout example. You can see for yourself that a simple integration with voucherify API gives you easy access to a multitude of validation strategies that can be managed and modified from voucherify dashboard without or with very little impact on code.
+
 # How to use this repository
 
 ## Setup
