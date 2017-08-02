@@ -42,10 +42,9 @@ app.get("/init", (request, response) => {
   console.log("[Create customer] customer: %s", customerId);
   voucherify.customers.create({ source_id: customerId })
   .then(customer => {
-    request.session.customerId = customer.id;
     console.log("[Create customer][Success] customer: %s", customerId);
     console.log("[Publish coupons] customer: %s", customerId);
-    return Promise.all(publishForCustomer(customer.source_id));
+    return Promise.all(publishForCustomer(customerId));
   })
   .then(coupons => {
     console.log("[Publish coupons][Success] customer: %s, coupons: %j", customerId, coupons);
@@ -61,7 +60,8 @@ function publishForCustomer(id) {
       source_id: id
     }
   };
-  return campaigns.map(campaign => campaign.name).map(campaign => voucherify.publish(Object.assign(params, { campaign })));
+
+  return campaigns.map(campaign => campaign.name).map(campaign => voucherify.distributions.publish(Object.assign(params, { campaign })));
 }
 
 app.get("/redemptions", (request, response) => {
@@ -107,7 +107,7 @@ app.get('/products', (request, response) => {
 app.post("/customer", (request, response) => {
   console.log("[Customer update] customer: %s, address: %j", request.session.id, request.body);
   voucherify.customers.update({
-    id: request.session.customerId,
+    id: request.session.id,
     address: request.body.address,
     metadata: {from: 'voucherify-showcase'}
   }).then(result => {
