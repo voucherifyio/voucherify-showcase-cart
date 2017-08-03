@@ -20,7 +20,7 @@ In the example you will find usages of a wide range of voucherify endpoints and 
 
 ## Setup
 
-[Sign up](http://app.voucherify.io/#/signup?plan=standard) to get your auth keys. The authorization keys should be set up in a .env file in the root directory, as follows:
+[Sign up](http://app.voucherify.io/#/signup?plan=standard) to get your auth keys. The authorization keys should be set up in a .env file in the root directory, as follows (you can copy `env_template` to `.env` file):
 
 ```
 # Application ID from your voucherify Project Settings
