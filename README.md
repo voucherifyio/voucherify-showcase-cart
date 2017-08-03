@@ -1,5 +1,6 @@
 # Welcome to the Voucherify Showcase
-==================================
+
+---
 
 This example shows how you can make Voucherify API work with a simple cart checkout example. You can see for yourself that a simple integration with voucherify API gives you easy access to a multitude of validation strategies that can be managed and modified from voucherify dashboard without or with very little impact on code.
 
@@ -17,6 +18,8 @@ In the example you will find usages of a wide range of voucherify endpoints and 
 - Learn more about [glitch](https://glitch.com/about/)
 
 # How to use this repository
+
+---
 
 ## Setup
 
