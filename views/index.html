@@ -452,6 +452,7 @@
       // cart
       let cart = JSON.parse(localStorage.getItem('cart')) || {};
       let appliedDiscount = {};
+      let loading = false;
       
       // coupons
       let coupons = JSON.parse(localStorage.getItem('coupons')) || [];
@@ -573,12 +574,13 @@
       }
      
       function showLoadingIndicator() {
-        document.querySelector('.loading-indicator').className += ' show'
+        loading = true;
+        render();
       }
 
       function hideLoadingIndicator() {
-        const indicator = document.querySelector('.loading-indicator')
-        indicator.className = indicator.className.replace('show', '')
+        loading = false;
+        render();
       }
 
       function redeemCoupon() {
@@ -587,7 +589,7 @@
         if (couponCode==='') return;
 
         showLoadingIndicator();
-        
+
         const options = {
           method: 'POST',
           headers: {
@@ -603,7 +605,7 @@
           .then(hideLoadingIndicator)
           .catch(error => {
             console.error(error);
-            hideLoadingIndicator()
+            hideLoadingIndicator()();
           });
       }
       
@@ -820,6 +822,11 @@
             <tr><td colspan="4" style="text-align: right"><strong>Discounted total</strong></td><td><strong>${appliedDiscount.discount.discountedTotal}</strong></td></tr>
           `;
         }
+
+        // loading indicator
+        const indicator = document.querySelector('.loading-indicator').className = loading
+          ? 'loading-indicator show'
+          : 'loading-indicator'
 
         // update redemptions counters
         renderCoupons();
