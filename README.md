@@ -1,10 +1,20 @@
 # Welcome to the Voucherify Showcase
 ==================================
 
-Read more about [Voucherify](https://voucherify.io) 
-[API docs](https://docs.voucherify.io)
-
 This example shows how you can make Voucherify API work with a simple cart checkout example. You can see for yourself that a simple integration with voucherify API gives you easy access to a multitude of validation strategies that can be managed and modified from voucherify dashboard without or with very little impact on code.
+
+You can browse the code (and quickly spin up your own rendition of this example) [here](https://glitch.com/edit/#!/hysterical-shade) and see a working live example at [https://hysterical-shade.glitch.me/](https://hysterical-shade.glitch.me/).
+
+In the example you will find usages of a wide range of voucherify endpoints and functionalities. The `server.js` uses `redemptions`, `vouchers`, `products` and `customers` namespaces of voucherify client. This is more convenient than hitting the API endpoints directly, the client does all the groundwork of constructing REST requests for you.
+
+## Useful links
+
+- This example code [online](https://glitch.com/edit/#!/hysterical-shade)
+- This example [online](https://hysterical-shade.glitch.me/)
+
+- Read more about [Voucherify](https://voucherify.io) 
+- Voucherify [API docs](https://docs.voucherify.io)
+- Learn more about [glitch](https://glitch.com/about/)
 
 # How to use this repository
 
