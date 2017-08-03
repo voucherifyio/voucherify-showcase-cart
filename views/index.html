@@ -570,7 +570,6 @@
 
         render();
         setTimeout(() => loadRedemptionHistory(), 2000);
-        
       }
      
       function showLoadingIndicator() {
@@ -601,11 +600,13 @@
         
         fetch('/redeem', options)
           .then(response => response.json())
-          .then(handleRedemption)
-          .then(hideLoadingIndicator)
+          .then(response => {
+            hideLoadingIndicator();
+            handleRedemption(response);
+          })
           .catch(error => {
             console.error(error);
-            hideLoadingIndicator()();
+            hideLoadingIndicator();
           });
       }
       
@@ -824,7 +825,7 @@
         }
 
         // loading indicator
-        const indicator = document.querySelector('.loading-indicator').className = loading
+        document.querySelector('.loading-indicator').className = loading
           ? 'loading-indicator show'
           : 'loading-indicator'
 
