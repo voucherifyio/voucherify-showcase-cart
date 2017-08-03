@@ -165,7 +165,39 @@
       .nav-trigger:checked + label {
         left: 17em;
       }
+
+      .cart {
+        position: relative;
+      }
+
+      .loading-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background-color: rgba(0, 0, 0, .1);
+        display: none;
+      }
+
+      .loading-indicator img {
+        height: 30px;
+        width: 30px;
+        position: relative;
+        top: 50%;
+        margin-top: -50%;
+        animation: spin 2s linear infinite;
+      }
+
+      .loading-indicator.show {
+        display: block;
+      }
       
+      @keyframes spin { 
+        0%, 100% { transform: scale(1, 1); } 
+        50% { transform: scale(.6, .6); } 
+
+      } 
     </style>
     
   </head>
@@ -205,7 +237,10 @@
               </form>
             </div>
           </div>
-          <div class="col-md-8 center-xs">
+          <div class="col-md-8 center-xs cart">
+            <div class="loading-indicator">
+              <img src="https://www.voucherify.io/favicon.ico" />
+            </div>
             <div class="panel">
               <div class="row">
                 <table class="cart-items">
@@ -536,11 +571,22 @@
         setTimeout(() => loadRedemptionHistory(), 2000);
         
       }
-      
+     
+      function showLoadingIndicator() {
+        document.querySelector('.loading-indicator').className += ' show'
+      }
+
+      function hideLoadingIndicator() {
+        const indicator = document.querySelector('.loading-indicator')
+        indicator.className = indicator.className.replace('show', '')
+      }
+
       function redeemCoupon() {
         const couponCode = couponField.value;
 
         if (couponCode==='') return;
+
+        showLoadingIndicator();
         
         const options = {
           method: 'POST',
@@ -554,8 +600,10 @@
         fetch('/redeem', options)
           .then(response => response.json())
           .then(handleRedemption)
+          .then(hideLoadingIndicator)
           .catch(error => {
             console.error(error);
+            hideLoadingIndicator()
           });
       }
       
