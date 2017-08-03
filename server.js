@@ -11,6 +11,8 @@ const session = require('express-session');
 const SQLiteStore = require('connect-sqlite3')(session);
 const campaigns = require('./campaigns');
 
+const debug = false;
+
 app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(session({
@@ -39,18 +41,19 @@ const voucherify = voucherifyClient({
 // publishes coupons for the user from campaigns
 app.get("/init", (request, response) => {
   const customerId = request.session.id;
-  console.log("[Create customer] customer: %s", customerId);
+  console.log("[Creating customer] customer: %s", customerId);
   voucherify.customers.create({ source_id: customerId })
   .then(customer => {
-    console.log("[Create customer][Success] customer: %s", customerId);
-    console.log("[Publish coupons] customer: %s", customerId);
+    console.log("[Creating customer][Success] customer: %s", customerId);
+    console.log("[Publishing coupons] customer: %s", customerId);
     return Promise.all(publishForCustomer(customerId));
   })
   .then(coupons => {
-    console.log("[Publish coupons][Success] customer: %s, coupons: %j", customerId, coupons);
+    console.log("[Publishing coupons][Success] customer: %s, coupons: %j", customerId, coupons);
+    debug && console.log("[Publishing coupons][Response] %j", coupons);
     response.status(200).json(coupons.map(coupon => coupon.voucher));
   })
-  .catch(error => console.error("[Publish coupons][Error] customer: %s, error: %j", customerId, error));
+  .catch(error => console.error("[Publishing coupons][Error] customer: %s, error: %j", customerId, error));
 });
 
 
@@ -66,17 +69,18 @@ function publishForCustomer(id) {
 
 app.get("/redemptions", (request, response) => {
   if (!request.session.id) return response.sendStatus(404);
-  console.log("[Redemptions] customer: %s", request.session.id);
+  console.log("[Getting redemptions] customer: %s", request.session.id);
   voucherify.customers.get(request.session.id)
     .then(customer => {
       return voucherify.redemptions.list({ customer: customer.id })
     })
     .then(redemptionsList => {
-      console.log("[Redemptions][Success] customer:%s, redemptions: %j", request.session.id, redemptionsList);
+      console.log("[Getting redemptions][Success] customer: %s", request.session.id);
+      debug && console.log("[Getting Redemptions][Response] %j", redemptionsList);
       response.status(200).json(redemptionsList.redemptions);
     })
     .catch(error => {
-      console.error("[Redemptions][Error] customer: %s, error: %j", request.session.id, error);
+      console.error("[Getting redemptions][Error] customer: %s, error: %j", request.session.id, error);
       response.sendStatus(404);
     });
 });
@@ -84,43 +88,50 @@ app.get("/redemptions", (request, response) => {
 const productsForThisDemo = require('./products')
 // get voucherify products
 app.get('/products', (request, response) => {
+  console.log("[Getting products] customer: %s", request.session.id)
   voucherify.products.list()
     .then(response => {
       const idsForThisDemo = productsForThisDemo.map(p => p.id)
-      return response.products.filter(product => idsForThisDemo.includes(product.source_id)).map(product => ({
+      return response.products.filter(product => idsForThisDemo.includes(product.source_id))
+    })
+    .then(products => {
+      console.log("[Getting products][Success] customer: %s", request.session.id)
+      debug && console.log("[Getting products][Response] %s", products)
+
+      response.status(200).json(products.map(product => ({
         prod_id: product.id,
         name: product.name,
         displayName: product.metadata.displayName,
         price: product.metadata.price
-      }))
-    })
-    .then(products => {
-      response.status(200).json(products)
+      })))
     })
     .catch(error => {
-      console.error("[Products][Error] error: %j", error);
+      console.error("[Getting Products][Error] error: %j", error);
       response.sendStatus(404);
     });
 })
 
 // update customer address
 app.post("/customer", (request, response) => {
-  console.log("[Customer update] customer: %s, address: %j", request.session.id, request.body);
+  console.log("[Updating customer] customer: %s", request.session.id);
+  debug && console.log("[Updating customer] address: %j", request.body)
   voucherify.customers.update({
     id: request.session.id,
     address: request.body.address,
     metadata: {from: 'voucherify-showcase'}
   }).then(result => {
-    console.log("[Customer update][Success] customer: %s, body: %j", request.session.id, result);
+    console.log("[Updating customer][Success] customer: %s", request.session.id, result);
+    debug && console.log("[Updating customer][Response] %s", result)
     response.sendStatus(200);
   }).catch(error => {
-    console.error("[Customer update][Error] customer: %s, error: %j", request.session.id, JSON.stringify(error, null, 2));
+    console.error("[Updating customer][Error] customer: %s, error: %j", request.session.id, error);
     response.sendStatus(404);
   });
 });
 
 app.post("/redeem", (request, response) => {
-  console.log("[Redeem] customer: %s, cart: %j", request.session.id, request.body); 
+  console.log("[Redeeming voucher] customer: %s", request.session.id); 
+  debug && console.log("[Redeeming voucher] cart: %j", request.body)
   const body = request.body;
   voucherify.redemptions.redeem(body.code, {
     customer: {
@@ -137,14 +148,15 @@ app.post("/redeem", (request, response) => {
     }
   })
   .then(result => {
-    console.log("[Redeem][Success] customer: %s, redemption: %j", request.session.id, result);
+    console.log("[Redeeming voucher][Success] customer: %s", request.session.id);
+    debug && console.log("[Redeeming voucher][Response] %j", result);
     response.status(200).json({
       valid: true,
       result: result
     });
   })
   .catch(error => {
-    console.error("[Redeem][Error] customer: %s, error: %j", request.session.id, error);
+    console.error("[Redeeming voucher][Error] customer: %s, error: %j", request.session.id, error);
     response.status(200).json({
       valid: false,
       result: error
@@ -155,28 +167,28 @@ app.post("/redeem", (request, response) => {
 // handles enable/disable button
 app.post("/enable", (request, response) => {
   const code = request.body.code;
-  console.log("[Enable] customer: %s, code: %s", request.session.id, code);
+  console.log("[Enabling voucher] customer: %s, code: %s", request.session.id, code);
   voucherify.vouchers.enable(code)
     .then(result => {
-    console.log("[Enable][Success] customer: %s, code: %s", request.session.id, code);
+    console.log("[Enabling voucher][Success] customer: %s, code: %s", request.session.id, code);
     response.sendStatus(200);
   })
     .catch(error => {
-      console.log("[Enable][Error] customer: %s, error: %j", request.session.id, error);
+      console.log("[Enabling vouhcer][Error] customer: %s, error: %j", request.session.id, error);
       response.sendStatus(404);
   });
 });
 
 app.post("/disable", (request, response) => {
   const code = request.body.code;
-  console.log("[Disable] customer: %s, code: %s", request.session.id, code);
+  console.log("[Disabling voucher] customer: %s, code: %s", request.session.id, code);
   voucherify.vouchers.disable(code)
     .then(result => {
-    console.log("[Disable][Success] customer: %s, code: %s", request.session.id, code);
+    console.log("[Disabling voucher][Success] customer: %s, code: %s", request.session.id, code);
     response.sendStatus(200);
   })
     .catch(error => {
-     console.log("[Disable][Error] customer: %s, error: %j", request.session.id, error);
+     console.log("[Disabling voucher][Error] customer: %s, error: %j", request.session.id, error);
     response.sendStatus(404);
   });
 });
