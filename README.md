@@ -12,7 +12,7 @@ In the example you will find usages of a wide range of voucherify endpoints and 
 
 - This example code [online](https://glitch.com/edit/#!/voucherify-cart)
 - This example [online](https://voucherify-cart.glitch.me/)
-
+- This Voucherify demostore [online](http://showcase.voucherify.io/)
 - Read more about [Voucherify](https://voucherify.io) 
 - Voucherify [API docs](https://docs.voucherify.io)
 - Learn more about [glitch](https://glitch.com/about/)
