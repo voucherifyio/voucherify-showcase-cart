@@ -1,6 +1,5 @@
-# Welcome to the Voucherify Showcase
-
----
+# Voucherify Showcase Cart - "Cart.js"
+[Read Documentation](https://docs.voucherify.io/docs/welcome) | [API Reference](https://docs.voucherify.io/reference) | [Help Center](https://support.voucherify.io)
 
 This example shows how you can make Voucherify API work with a simple cart checkout example. You can see for yourself that a simple integration with voucherify API gives you easy access to a multitude of validation strategies that can be managed and modified from voucherify dashboard without or with very little impact on code.
 
